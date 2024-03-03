@@ -150,17 +150,17 @@ async fn test_context(args: &TestArgs) -> Result<TestContext<Postgres>, Error> {
         do_cleanup(&mut conn, now).await?;
     }
 
-    let new_db_name: String = query_scalar(
-        r#"
-            insert into _sqlx_test.databases(db_name, test_path)
-            select '_sqlx_test_' || nextval('_sqlx_test.database_ids'), $1
-            returning db_name
-        "#,
-    )
-    .bind(&args.test_path)
-    .fetch_one(&mut *conn)
-    .await?;
-
+    // let new_db_name: String = query_scalar(
+    //     r#"
+    //         insert into _sqlx_test.databases(db_name, test_path)
+    //         select '_sqlx_test_' || nextval('_sqlx_test.database_ids'), $1
+    //         returning db_name
+    //     "#,
+    // )
+    // .bind(&args.test_path)
+    // .fetch_one(&mut *conn)
+    // .await?;
+    let new_db_name = format!("_sqlx_test_{}", now.as_secs() + now.subsec_nanos() as u64);
     conn.execute(&format!("create database {new_db_name:?}")[..])
         .await?;
 
